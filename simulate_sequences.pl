@@ -5,17 +5,19 @@ use List::Util 'shuffle';
 
 # Function to display help menu
 sub print_usage {
-    print "Usage: $0 [total-fragments] [error-rate]\n";
+    print "Usage: $0 [total-fragments] [error-rate] [fragment-size]\n";
     print "\n";
     print "Arguments:\n";
-    print "  total-fragments             Specify the total number of 150bp fragments. This is a required argument and must be a positive integer.\n";
+    print "  total-fragments             Specify the total number of fragments. This is a required argument and must be a positive integer.\n";
     print "  error-rate                  Specify the error rate desired [i.e.: if 1% is desired, use 0.01]. This is an optional argument and must be positive. The default is 0.01.\n";
+    print " fragment-size                Specify the fragment size (bp). This is an optional argument and has to be used with error-rate. The default is 150bp.\n";
     print "\n";
     print "Example:\n";
-    print "  $0 100 0.01\n";
+    print "  $0 100 0.01 150\n";
 }
 # Simulate the errors for each sequence
 my $error_rate = 0.01;  # 1% error rate
+my $fragment_size = 150;
 
 # Main script
 if (@ARGV == 0) {
@@ -35,12 +37,15 @@ if ($total_fragments !~ /^\d+$/ || $total_fragments <= 0) {
     exit 1;  # Exiting with a general error code
 }
 
-if ( @ARGV == 2 ){
+if ( @ARGV >= 2 ){
 	$error_rate = $ARGV[1];
+}
+if ( @ARGV == 3 ){
+	$fragment_size = $ARGV[2];
 }
 
 # If 'help' is requested or an incorrect number of arguments are supplied, display usage
-if ($total_fragments eq 'help' || @ARGV > 2) {
+if ($total_fragments eq 'help' || @ARGV > 3) {
     print_usage();
     exit 0;  # Exiting with a success status code because help was asked, not because there was an error
 }
@@ -92,8 +97,8 @@ sub cut_sequence{
 	my @fragments;
 
 	while( scalar(@fragments) < $total_fragments ){
-		my $start = int(rand(length($seq)- 150));
-		my $fragment = substr($seq, $start, 150);
+		my $start = int(rand(length($seq)- $fragment_size));
+		my $fragment = substr($seq, $start, $fragment_size);
 		push @fragments, $fragment;
 	}
 	return @fragments;
